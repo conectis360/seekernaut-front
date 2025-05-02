@@ -1,18 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
-import {
-  Box,
-  List,
-  ListItem,
-  ListItemText,
-  TextField,
-  Button,
-  InputAdornment,
-  CircularProgress,
-} from "@mui/material";
-import SendIcon from "@mui/icons-material/Send";
+import { Box } from "@mui/material";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { apiFetch } from "../../utils/api";
+import ChatList from "./ChatList";
+import ChatInput from "./ChatInput";
 
 interface BackendMessage {
   messageId: number;
@@ -42,7 +35,10 @@ interface ChatMessage {
 }
 
 const ChatWindow: React.FC = () => {
-  const { conversationId } = useParams();
+  const { conversationId: initialConversationId } = useParams();
+  const [conversationId, setConversationId] = useState<string | null>(
+    initialConversationId ? initialConversationId : null
+  );
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
@@ -50,47 +46,40 @@ const ChatWindow: React.FC = () => {
 
   useEffect(() => {
     const loadHistory = async () => {
-      try {
-        const response = await fetch(
-          `http://localhost:9000/v1/ollama/conversations/${conversationId}/chat`
-        );
-        if (response.ok) {
-          const data: BackendMessage[] = await response.json();
-          setMessages(
-            data.map((msg) => ({
-              sender: msg.senderType === "user" ? "user" : "bot",
-              content: msg.content,
-              sentAtFormatted: format(
-                new Date(msg.sentAt),
-                "dd/MM/yyyy HH:mm",
-                { locale: ptBR }
-              ), // Formata a data
-            }))
+      if (conversationId) {
+        try {
+          const data: BackendMessage[] | null = await apiFetch(
+            `/ollama/conversations/${conversationId}/chat`
           );
-        } else {
-          console.error("Erro ao carregar o histórico:", response.status);
-          // Exibir mensagem de erro ao usuário
+          if (data) {
+            setMessages(
+              data.map((msg) => ({
+                sender: msg.senderType === "user" ? "user" : "bot",
+                content: msg.content,
+                sentAtFormatted: format(
+                  new Date(msg.sentAt),
+                  "dd/MM/yyyy HH:mm",
+                  { locale: ptBR }
+                ),
+              }))
+            );
+          } else {
+            console.error("Erro ao carregar o histórico: Resposta vazia");
+          }
+        } catch (error: any) {
+          console.error(
+            "Erro ao comunicar com o backend para o histórico:",
+            error
+          );
         }
-      } catch (error) {
-        console.error(
-          "Erro ao comunicar com o backend para o histórico:",
-          error
-        );
-        // Exibir mensagem de erro ao usuário
       }
     };
 
     loadHistory();
   }, [conversationId]);
 
-  useEffect(() => {
-    if (chatAreaRef.current) {
-      chatAreaRef.current.scrollTop = chatAreaRef.current.scrollHeight;
-    }
-  }, [messages]);
-
   const handleSendMessage = async () => {
-    if (newMessage.trim()) {
+    if (newMessage.trim() && conversationId) {
       const userMessage: ChatMessage = { sender: "user", content: newMessage };
       setMessages((prevMessages) => [...prevMessages, userMessage]);
       setNewMessage("");
@@ -114,7 +103,7 @@ const ChatWindow: React.FC = () => {
           const reader = response.body?.getReader();
           const decoder = new TextDecoder("utf-8");
           let partialResponse = "";
-          let accumulatedContent = ""; // Para reconstruir a mensagem do bot
+          let accumulatedContent = "";
 
           while (true) {
             const { done, value } = await reader!.read();
@@ -122,12 +111,10 @@ const ChatWindow: React.FC = () => {
               break;
             }
             partialResponse += decoder.decode(value);
-            // Processar cada evento da stream (assumindo que cada evento é uma parte da resposta)
             try {
               const parsed = JSON.parse(partialResponse);
               if (parsed?.message?.content) {
                 accumulatedContent += parsed.message.content;
-                // Atualiza a última mensagem do bot com o conteúdo parcial
                 setMessages((prevMessages) => {
                   const lastMessage = prevMessages[prevMessages.length - 1];
                   if (lastMessage?.sender === "bot") {
@@ -143,9 +130,8 @@ const ChatWindow: React.FC = () => {
                   }
                 });
               }
-              partialResponse = ""; // Reset para o próximo evento
+              partialResponse = "";
             } catch (error) {
-              // Pode haver eventos incompletos, então ignoramos o erro de parsing por enquanto
               console.warn(
                 "Evento da stream não completamente parseável:",
                 partialResponse,
@@ -165,24 +151,16 @@ const ChatWindow: React.FC = () => {
         } else {
           console.error("Erro ao enviar mensagem:", response.status);
           setIsTyping(false);
-          // Exibir mensagem de erro ao usuário
         }
       } catch (error) {
         console.error("Erro ao comunicar com o backend:", error);
         setIsTyping(false);
-        // Exibir mensagem de erro ao usuário
       }
     }
   };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setNewMessage(event.target.value);
-  };
-
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === "Enter") {
-      handleSendMessage();
-    }
   };
 
   return (
@@ -194,71 +172,16 @@ const ChatWindow: React.FC = () => {
         padding: 2,
       }}
     >
-      <Box ref={chatAreaRef} sx={{ flexGrow: 1, overflowY: "auto", mb: 2 }}>
-        <List>
-          {messages.map((message, index) => (
-            <ListItem
-              key={index}
-              sx={{
-                justifyContent:
-                  message.sender === "user" ? "flex-end" : "flex-start",
-              }}
-            >
-              <ListItemText
-                primary={message.content}
-                secondary={
-                  message.sender === "user"
-                    ? `Você ${
-                        message.sentAtFormatted
-                          ? `em ${message.sentAtFormatted}`
-                          : ""
-                      }`
-                    : `SeekerNaut ${
-                        message.sentAtFormatted
-                          ? `em ${message.sentAtFormatted}`
-                          : ""
-                      }`
-                }
-                sx={{
-                  backgroundColor:
-                    message.sender === "user" ? "#e0f7fa" : "#f5f5f5",
-                  padding: 1.5,
-                  borderRadius: "8px",
-                  maxWidth: "70%",
-                  wordBreak: "break-word",
-                }}
-              />
-            </ListItem>
-          ))}
-          {isTyping && (
-            <ListItem sx={{ justifyContent: "flex-start" }}>
-              <CircularProgress size={24} />
-            </ListItem>
-          )}
-        </List>
-      </Box>
-
-      <TextField
-        fullWidth
-        label="Digite sua mensagem"
-        variant="outlined"
-        value={newMessage}
-        onChange={handleInputChange}
-        onKeyDown={handleKeyDown}
-        InputProps={{
-          endAdornment: (
-            <InputAdornment position="end">
-              <Button
-                color="primary"
-                onClick={handleSendMessage}
-                disabled={isTyping || !newMessage.trim()}
-              >
-                <SendIcon />
-              </Button>
-            </InputAdornment>
-          ),
-        }}
-        disabled={isTyping}
+      <ChatList
+        messages={messages}
+        isTyping={isTyping}
+        chatAreaRef={chatAreaRef}
+      />
+      <ChatInput
+        newMessage={newMessage}
+        isTyping={isTyping}
+        onSendMessage={handleSendMessage}
+        onInputChange={handleInputChange}
       />
     </Box>
   );

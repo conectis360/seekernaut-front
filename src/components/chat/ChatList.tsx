@@ -1,0 +1,43 @@
+// ChatList.tsx
+import React, { useRef, useEffect } from "react";
+import { Box, List, CircularProgress, ListItem } from "@mui/material";
+import ChatMessageDisplay from "./ChatMessageDisplay";
+
+interface ChatListProps {
+  messages: {
+    sender: "user" | "bot";
+    content: string;
+    sentAtFormatted?: string;
+  }[];
+  isTyping: boolean;
+  chatAreaRef: React.RefObject<HTMLDivElement | null>; // Permitindo null
+}
+
+const ChatList: React.FC<ChatListProps> = ({
+  messages,
+  isTyping,
+  chatAreaRef,
+}) => {
+  useEffect(() => {
+    if (chatAreaRef.current) {
+      chatAreaRef.current.scrollTop = chatAreaRef.current.scrollHeight;
+    }
+  }, [messages, chatAreaRef]);
+
+  return (
+    <Box ref={chatAreaRef} sx={{ flexGrow: 1, overflowY: "auto", mb: 2 }}>
+      <List>
+        {messages.map((message, index) => (
+          <ChatMessageDisplay key={index} message={message} />
+        ))}
+        {isTyping && (
+          <ListItem sx={{ justifyContent: "flex-start" }}>
+            <CircularProgress size={24} />
+          </ListItem>
+        )}
+      </List>
+    </Box>
+  );
+};
+
+export default ChatList;
