@@ -1,46 +1,84 @@
-# Getting Started with Create React App
+# SeekerNaut Chat
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Visão Geral
 
-## Available Scripts
+Este é o repositório do frontend da aplicação SeekerNaut Chat, uma interface de chat moderna e responsiva construída com React, TypeScript e Material Design 3. O objetivo principal é fornecer uma experiência de conversação fluida e intuitiva para os usuários interagirem com um Large Language Model (LLM) rodando em um backend Spring WebFlux.
 
-In the project directory, you can run:
+A aplicação oferece as seguintes funcionalidades principais:
 
-### `npm start`
+* **Interface de Chat Amigável:** Campo de entrada de mensagens claro e área de exibição de conversas organizada.
+* **Envio de Mensagens:** Permite aos usuários enviar mensagens de texto para o LLM.
+* **Recebimento de Respostas em Tempo Real (Streaming):** Exibe as respostas do LLM à medida que são geradas, proporcionando uma experiência interativa.
+* **Histórico de Conversas:** Mantém o contexto da conversa ao enviar mensagens subsequentes.
+* **Design Moderno:** Utiliza os componentes e o estilo do Material Design 3 para uma interface de usuário atraente e consistente.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## Tecnologias Utilizadas
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+* **React:** Uma biblioteca JavaScript para construir interfaces de usuário.
+* **TypeScript:** Um superset de JavaScript que adiciona tipagem estática.
+* **Material Design 3:** Um sistema de design criado pelo Google, implementado aqui através da biblioteca `@mui/material` para React.
+* **`@mui/material`:** Uma biblioteca de componentes de interface de usuário que implementa as diretrizes do Material Design 3.
+* **`@emotion/react` e `@emotion/styled`:** Bibliotecas para estilização de componentes React usadas por `@mui/material`.
+* **`@mui/icons-material`:** Uma biblioteca de ícones SVG do Material Design.
+* **`fetch` API (ou Axios):** Para comunicação HTTP com o backend.
+* **`EventSource` API:** Para lidar com o streaming de eventos do backend.
 
-### `npm test`
+## Pré-requisitos
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+* **Node.js** (versão >= 18)
+* **npm** ou **yarn** instalado
 
-### `npm run build`
+## Como Rodar a Aplicação
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+1.  **Clone o repositório:**
+    ```bash
+    git clone <URL_DO_SEU_REPOSITORIO>
+    cd chat-frontend
+    ```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+2.  **Instale as dependências:**
+    ```bash
+    npm install
+    # ou
+    yarn install
+    ```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+3.  **Configure a URL do Backend:**
+    Você precisará configurar a URL do seu backend Spring WebFlux na aplicação frontend. Geralmente, isso é feito em um arquivo de configuração (por exemplo, `.env` ou diretamente no código em um arquivo de constantes). Certifique-se de que a variável de ambiente ou a constante `REACT_APP_BACKEND_URL` (ou similar) esteja definida com a URL correta do seu backend.
 
-### `npm run eject`
+4.  **Inicie a aplicação:**
+    ```bash
+    npm start
+    # ou
+    yarn start
+    ```
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+    Isso iniciará o servidor de desenvolvimento do React e abrirá a aplicação no seu navegador (geralmente em `http://localhost:3000`).
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Estrutura de Pastas (Exemplo)
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+seekernaut-front/
+├── public/
+├── src/
+│   ├── components/
+│   │   ├── ChatInput.tsx
+│   │   ├── ChatWindow.tsx
+│   │   ├── MessageItem.tsx
+│   │   └── MessageList.tsx
+│   ├── App.tsx
+│   ├── index.tsx
+│   ├── react-app-env.d.ts
+│   ├── ...
+├── .gitignore
+├── README.md
+├── package.json
+├── tsconfig.json
+└── ...
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+## Próximos Passos e Contribuições
 
-## Learn More
+Este projeto está em desenvolvimento contínuo. Contribuições são bem-vindas! Se você tiver sugestões de melhorias, relatar bugs ou quiser contribuir com código, por favor, abra uma issue ou envie um pull request.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Licença
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+[ADICIONE A LICENÇA AQUI]
