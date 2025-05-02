@@ -11,27 +11,79 @@ import {
   CircularProgress,
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
-interface Message {
+interface BackendMessage {
+  messageId: number;
+  senderType: "user" | "assistant";
+  content: string;
+  sentAt: string;
+  conversation: {
+    conversationId: string;
+    startedAt: string;
+    title: string;
+    user: {
+      id: number;
+      email: string;
+      nome: string;
+      foto: string | null;
+      usuario: string;
+      accountNonLocked: boolean;
+      tipoUsuario: { id: number; tipoUsuario: "USER" }[];
+    };
+  };
+}
+
+interface ChatMessage {
   sender: "user" | "bot";
   content: string;
+  sentAtFormatted?: string;
 }
 
 const ChatWindow: React.FC = () => {
   const { conversationId } = useParams();
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState("");
-  const [isTyping, setIsTyping] = useState(false); // Para o indicador de "digitando..."
+  const [isTyping, setIsTyping] = useState(false);
   const chatAreaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Lógica para carregar o histórico de mensagens da conversa (se houver)
-    console.log("Carregando histórico para a conversa:", conversationId);
-    // Você faria uma chamada ao backend aqui para buscar as mensagens existentes
+    const loadHistory = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:9000/v1/ollama/conversations/${conversationId}/chat`
+        );
+        if (response.ok) {
+          const data: BackendMessage[] = await response.json();
+          setMessages(
+            data.map((msg) => ({
+              sender: msg.senderType === "user" ? "user" : "bot",
+              content: msg.content,
+              sentAtFormatted: format(
+                new Date(msg.sentAt),
+                "dd/MM/yyyy HH:mm",
+                { locale: ptBR }
+              ), // Formata a data
+            }))
+          );
+        } else {
+          console.error("Erro ao carregar o histórico:", response.status);
+          // Exibir mensagem de erro ao usuário
+        }
+      } catch (error) {
+        console.error(
+          "Erro ao comunicar com o backend para o histórico:",
+          error
+        );
+        // Exibir mensagem de erro ao usuário
+      }
+    };
+
+    loadHistory();
   }, [conversationId]);
 
   useEffect(() => {
-    // Rola a área de chat para a última mensagem sempre que novas mensagens são adicionadas
     if (chatAreaRef.current) {
       chatAreaRef.current.scrollTop = chatAreaRef.current.scrollHeight;
     }
@@ -39,32 +91,30 @@ const ChatWindow: React.FC = () => {
 
   const handleSendMessage = async () => {
     if (newMessage.trim()) {
-      const userMessage: Message = { sender: "user", content: newMessage };
+      const userMessage: ChatMessage = { sender: "user", content: newMessage };
       setMessages((prevMessages) => [...prevMessages, userMessage]);
       setNewMessage("");
       setIsTyping(true);
 
-      // Enviar a mensagem para o backend
       try {
         const response = await fetch(`/conversations/${conversationId}/chat`, {
-          // Ajuste a URL conforme sua API
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
             messages: [{ role: "user", content: newMessage }],
-          }), // Adapte o formato do body
+          }),
         });
 
         if (
           response.ok &&
           response.headers.get("Content-Type")?.includes("text/event-stream")
         ) {
-          // Lidar com streaming de resposta
           const reader = response.body?.getReader();
           const decoder = new TextDecoder("utf-8");
           let partialResponse = "";
+          let accumulatedContent = ""; // Para reconstruir a mensagem do bot
 
           while (true) {
             const { done, value } = await reader!.read();
@@ -72,23 +122,44 @@ const ChatWindow: React.FC = () => {
               break;
             }
             partialResponse += decoder.decode(value);
-            // Processar e exibir a resposta parcial (você precisará formatar isso)
-            console.log("Resposta parcial:", partialResponse);
-            // Atualizar o estado das mensagens com a resposta parcial
-            const botMessage: Message = {
-              sender: "bot",
-              content: partialResponse,
-            }; // Simplificado
-            setMessages((prevMessages) => [...prevMessages, botMessage]); // Isso precisará ser refinado para streams
+            // Processar cada evento da stream (assumindo que cada evento é uma parte da resposta)
+            try {
+              const parsed = JSON.parse(partialResponse);
+              if (parsed?.message?.content) {
+                accumulatedContent += parsed.message.content;
+                // Atualiza a última mensagem do bot com o conteúdo parcial
+                setMessages((prevMessages) => {
+                  const lastMessage = prevMessages[prevMessages.length - 1];
+                  if (lastMessage?.sender === "bot") {
+                    return [
+                      ...prevMessages.slice(0, -1),
+                      { ...lastMessage, content: accumulatedContent },
+                    ];
+                  } else {
+                    return [
+                      ...prevMessages,
+                      { sender: "bot", content: accumulatedContent },
+                    ];
+                  }
+                });
+              }
+              partialResponse = ""; // Reset para o próximo evento
+            } catch (error) {
+              // Pode haver eventos incompletos, então ignoramos o erro de parsing por enquanto
+              console.warn(
+                "Evento da stream não completamente parseável:",
+                partialResponse,
+                error
+              );
+            }
           }
           setIsTyping(false);
         } else if (response.ok) {
-          // Lidar com resposta completa (não streaming)
           const data = await response.json();
-          const botMessage: Message = {
+          const botMessage: ChatMessage = {
             sender: "bot",
             content: data.choices[0]?.message?.content || "Resposta do bot",
-          }; // Adapte conforme a estrutura da sua resposta
+          };
           setMessages((prevMessages) => [...prevMessages, botMessage]);
           setIsTyping(false);
         } else {
@@ -135,7 +206,19 @@ const ChatWindow: React.FC = () => {
             >
               <ListItemText
                 primary={message.content}
-                secondary={message.sender === "user" ? "Você" : "SeekerNaut"}
+                secondary={
+                  message.sender === "user"
+                    ? `Você ${
+                        message.sentAtFormatted
+                          ? `em ${message.sentAtFormatted}`
+                          : ""
+                      }`
+                    : `SeekerNaut ${
+                        message.sentAtFormatted
+                          ? `em ${message.sentAtFormatted}`
+                          : ""
+                      }`
+                }
                 sx={{
                   backgroundColor:
                     message.sender === "user" ? "#e0f7fa" : "#f5f5f5",
