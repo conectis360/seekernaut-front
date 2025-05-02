@@ -1,4 +1,4 @@
-// ChatList.tsx
+// ChatList.tsx (sem alterações significativas na estrutura)
 import React, { useRef, useEffect } from "react";
 import { Box, List, CircularProgress, ListItem } from "@mui/material";
 import ChatMessageDisplay from "./ChatMessageDisplay";
@@ -10,7 +10,7 @@ interface ChatListProps {
     sentAtFormatted?: string;
   }[];
   isTyping: boolean;
-  chatAreaRef: React.RefObject<HTMLDivElement | null>; // Permitindo null
+  chatAreaRef: React.RefObject<HTMLDivElement | null>;
 }
 
 const ChatList: React.FC<ChatListProps> = ({
@@ -25,14 +25,24 @@ const ChatList: React.FC<ChatListProps> = ({
   }, [messages, chatAreaRef]);
 
   return (
-    <Box ref={chatAreaRef} sx={{ flexGrow: 1, overflowY: "auto", mb: 2 }}>
+    <Box
+      ref={chatAreaRef}
+      sx={{ flexGrow: 1, overflowY: "auto", mb: 2, padding: 1 }}
+    >
+      {" "}
+      {/* Adicionando um pequeno padding para as mensagens */}
       <List>
         {messages.map((message, index) => (
-          <ChatMessageDisplay key={index} message={message} />
+          <ChatMessageDisplay
+            key={index}
+            message={message}
+            isCentered={message.sender === "bot"}
+          />
         ))}
         {isTyping && (
           <ListItem sx={{ justifyContent: "flex-start" }}>
-            <CircularProgress size={24} />
+            <CircularProgress size={24} color="inherit" />{" "}
+            {/* Usando color="inherit" para o spinner */}
           </ListItem>
         )}
       </List>

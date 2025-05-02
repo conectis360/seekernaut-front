@@ -30,6 +30,7 @@ const Login: React.FC = () => {
       });
 
       localStorage.setItem("accessToken", data.accessToken);
+      localStorage.setItem("userId", String(data.id));
       console.log("Login successful, token:", data.accessToken);
       window.location.href = "/dashboard";
     } catch (err: any) {

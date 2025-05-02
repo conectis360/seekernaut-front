@@ -170,6 +170,8 @@ const ChatWindow: React.FC = () => {
         flexDirection: "column",
         height: "calc(100vh - 64px)",
         padding: 2,
+        backgroundColor: "#1b1c1d", // Fundo cinza escuro
+        color: "#f5f5f5", // Cor do texto padrão para contraste
       }}
     >
       <ChatList
