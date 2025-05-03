@@ -25,7 +25,8 @@ function App() {
         <Route path="/" element={<Navigate to="/dashboard" replace />} />{" "}
         {/* Redirecionar raiz para o dashboard */}
         {/* Rota para a janela de chat, com um parâmetro para o ID da conversa */}
-        <Route path="/chatbot/:conversationId" element={<ChatWindow />} />
+        <Route path="/chat/:conversationId" element={<ChatPage />} />{" "}
+        {/* Também renderiza o layout para um chat específico */}
         {/* Você pode adicionar mais rotas aqui, se necessário */}
       </Routes>
     </Router>

@@ -35,10 +35,7 @@ interface ChatMessage {
 }
 
 const ChatWindow: React.FC = () => {
-  const { conversationId: initialConversationId } = useParams();
-  const [conversationId, setConversationId] = useState<string | null>(
-    initialConversationId ? initialConversationId : null
-  );
+  const { conversationId } = useParams<{ conversationId?: string }>(); // Obtém o conversationId da URL
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const chatAreaRef = useRef<HTMLDivElement>(null);
@@ -71,11 +68,14 @@ const ChatWindow: React.FC = () => {
             error
           );
         }
+      } else {
+        // Lógica para quando não há conversationId na URL (ex: tela inicial do chat?)
+        setMessages([]); // Limpa as mensagens
       }
     };
 
     loadHistory();
-  }, [conversationId]);
+  }, [conversationId]); // Executa novamente quando conversationId muda
 
   const handleSendMessage = useCallback(
     async (messageToSend: string) => {
@@ -171,7 +171,7 @@ const ChatWindow: React.FC = () => {
       sx={{
         display: "flex",
         flexDirection: "column",
-        height: "calc(100vh - 64px)",
+        flexGrow: 1, // Para ocupar o espaço restante na MainContent
         padding: 2,
         backgroundColor: "#1b1c1d",
         color: "#f5f5f5",
@@ -182,10 +182,7 @@ const ChatWindow: React.FC = () => {
         isTyping={isTyping}
         chatAreaRef={chatAreaRef}
       />
-      <ChatInput
-        isTyping={isTyping}
-        onSendMessage={handleSendMessage} // Passa a função que agora espera a mensagem
-      />
+      <ChatInput isTyping={isTyping} onSendMessage={handleSendMessage} />
     </Box>
   );
 };
