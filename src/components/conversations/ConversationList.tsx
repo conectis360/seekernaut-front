@@ -1,30 +1,37 @@
-// ConversationList.tsx
 import React, { useState, useEffect } from "react";
 import {
   List,
-  ListItem,
-  ListItemButton,
-  ListItemText,
   Typography,
   Divider,
   CircularProgress,
   Box,
+  Button,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
-import { apiFetch } from "../../utils/api";
+import { apiFetch } from "../../utils/api"; // Assuming you have this utility
+import ConversationItem from "./ConversationItem";
 
 interface Conversation {
   conversationId: string;
   title: string;
-  startedAt: string;
-  // Outras propriedades da conversa que você possa ter
+  icon?: string;
+  isPinned?: boolean;
+  // Add other relevant properties
 }
 
-const ConversationList: React.FC = () => {
+interface ConversationListProps {
+  onConversationClick: (id: string) => void;
+  onConversationMenuOpen: (id: string) => void;
+  selectedConversationId?: string | null;
+}
+
+const ConversationList: React.FC<ConversationListProps> = ({
+  onConversationClick,
+  onConversationMenuOpen,
+  selectedConversationId,
+}) => {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchConversations = async () => {
@@ -53,18 +60,19 @@ const ConversationList: React.FC = () => {
     fetchConversations();
   }, []); // Executa apenas na montagem
 
-  const handleConversationClick = (conversationId: string) => {
-    navigate(`/chat/${conversationId}`);
+  const handleLoadMore = () => {
+    // Implement logic to load more conversations
+    console.log("Load more conversations");
   };
 
   return (
     <Box
       sx={{
-        width: 350, // Largura do menu lateral
+        width: 300, // Adjust width as needed
         height: "100%",
-        backgroundColor: "#2e2e2e",
-        color: "#f5f5f5",
-        borderRight: "1px solid #383838",
+        backgroundColor: "#2e2e2e", // Match the background color
+        color: "#f5f5f5", // Match the text color
+        borderRight: "1px solid #383838", // Match the border
         padding: 2,
         display: "flex",
         flexDirection: "column",
@@ -90,27 +98,26 @@ const ConversationList: React.FC = () => {
       ) : (
         <List sx={{ flexGrow: 1, overflowY: "auto" }}>
           {conversations.map((conversation) => (
-            <ListItem key={conversation.conversationId} disablePadding>
-              <ListItemButton
-                onClick={() =>
-                  handleConversationClick(conversation.conversationId)
-                }
-              >
-                <ListItemText
-                  primary={
-                    conversation.title ||
-                    `Sem título (${new Date(
-                      conversation.startedAt
-                    ).toLocaleDateString()})`
-                  }
-                />
-              </ListItemButton>
-            </ListItem>
+            <ConversationItem
+              key={conversation.conversationId}
+              id={conversation.conversationId}
+              title={conversation.title}
+              iconUrl={conversation.icon}
+              isPinned={conversation.isPinned}
+              isSelected={
+                conversation.conversationId === selectedConversationId
+              }
+              onClick={onConversationClick}
+              onOpenMenu={onConversationMenuOpen}
+            />
           ))}
         </List>
       )}
       <Divider sx={{ borderColor: "#383838", marginTop: 1 }} />
-      {/* Adicione aqui botões para novas conversas, configurações, etc. */}
+      <Button onClick={handleLoadMore} fullWidth>
+        Mais
+      </Button>
+      {/* Add new conversation button or other actions here */}
     </Box>
   );
 };
