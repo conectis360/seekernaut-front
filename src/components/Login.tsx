@@ -31,8 +31,12 @@ const Login: React.FC = () => {
 
       localStorage.setItem("accessToken", data.accessToken);
       localStorage.setItem("userId", String(data.id));
+      localStorage.setItem("nome", data.nome);
+      localStorage.setItem("email", data.email);
+      localStorage.setItem("username", data.username);
+
       console.log("Login successful, token:", data.accessToken);
-      window.location.href = "/dashboard";
+      window.location.href = "/chat";
     } catch (err: any) {
       setError(
         err.message || "Falha ao fazer login. Verifique suas credenciais."

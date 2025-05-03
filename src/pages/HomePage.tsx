@@ -1,6 +1,7 @@
 import React from "react";
 import { Typography, Button, Box, Container } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import Login from "../components/Login";
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
@@ -37,15 +38,8 @@ const HomePage: React.FC = () => {
         Obtenha respostas inteligentes, gere ideias e explore o conhecimento
         através de conversas interativas.
       </Typography>
-      <Box sx={{ mt: 4 }}>
-        <Button
-          variant="contained"
-          color="primary"
-          size="large"
-          onClick={handleStartChat}
-        >
-          Iniciar Conversa
-        </Button>
+      <Box sx={{ mt: 6 }}>
+        <Login></Login>
       </Box>
 
       <Box sx={{ mt: 6, textAlign: "center", color: "textSecondary" }}>

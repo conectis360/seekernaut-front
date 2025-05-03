@@ -27,7 +27,11 @@ const ChatList: React.FC<ChatListProps> = ({
   return (
     <Box
       ref={chatAreaRef}
-      sx={{ flexGrow: 1, overflowY: "auto", mb: 2, padding: 1 }}
+      sx={{
+        flexGrow: 1, // Ocupa o espaço vertical disponível no ChatWindow
+        overflowY: "auto", // Adiciona a barra de rolagem
+        padding: 2,
+      }}
     >
       {" "}
       {/* Adicionando um pequeno padding para as mensagens */}

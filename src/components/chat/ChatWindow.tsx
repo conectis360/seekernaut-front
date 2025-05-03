@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useParams } from "react-router-dom";
-import { Box } from "@mui/material";
+import { Box, styled } from "@mui/material";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { apiFetch } from "../../utils/api";
@@ -34,8 +34,22 @@ interface ChatMessage {
   sentAtFormatted?: string;
 }
 
+const ChatWindowContainer = styled(Box)(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  flexGrow: 1, // Ocupa o espaço restante na MainContent
+  height: "100%", // Ocupa toda a altura disponível na MainContent
+  overflow: "hidden", // Impede que cresça além da altura da MainContent
+}));
+
+const ChatListContainer = styled(Box)(({ theme }) => ({
+  flexGrow: 1, // A lista de mensagens cresce para ocupar o espaço disponível
+  overflowY: "auto", // Adiciona barra de rolagem vertical
+  backgroundColor: "#333",
+}));
+
 const ChatWindow: React.FC = () => {
-  const { conversationId } = useParams<{ conversationId?: string }>(); // Obtém o conversationId da URL
+  const { conversationId } = useParams<{ conversationId?: string }>();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const chatAreaRef = useRef<HTMLDivElement>(null);
@@ -167,23 +181,16 @@ const ChatWindow: React.FC = () => {
   );
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        flexGrow: 1, // Para ocupar o espaço restante na MainContent
-        padding: 2,
-        backgroundColor: "#1b1c1d",
-        color: "#f5f5f5",
-      }}
-    >
-      <ChatList
-        messages={messages}
-        isTyping={isTyping}
-        chatAreaRef={chatAreaRef}
-      />
+    <ChatWindowContainer>
+      <ChatListContainer ref={chatAreaRef}>
+        <ChatList
+          messages={messages}
+          isTyping={isTyping}
+          chatAreaRef={chatAreaRef}
+        />
+      </ChatListContainer>
       <ChatInput isTyping={isTyping} onSendMessage={handleSendMessage} />
-    </Box>
+    </ChatWindowContainer>
   );
 };
 

@@ -6,6 +6,8 @@ import {
   CircularProgress,
   Box,
   Button,
+  SxProps,
+  Theme,
 } from "@mui/material";
 import { apiFetch } from "../../utils/api"; // Assuming you have this utility
 import ConversationItem from "./ConversationItem";
@@ -22,6 +24,7 @@ interface ConversationListProps {
   onConversationClick: (id: string) => void;
   onConversationMenuOpen: (id: string) => void;
   selectedConversationId?: string | null;
+  sx?: SxProps<Theme>; // Adicione a prop sx à interface
 }
 
 const ConversationList: React.FC<ConversationListProps> = ({
@@ -68,8 +71,8 @@ const ConversationList: React.FC<ConversationListProps> = ({
   return (
     <Box
       sx={{
-        width: 300, // Adjust width as needed
-        height: "100%",
+        width: 450, // Adjust width as needed
+        height: "98%",
         backgroundColor: "#2e2e2e", // Match the background color
         color: "#f5f5f5", // Match the text color
         borderRight: "1px solid #383838", // Match the border
