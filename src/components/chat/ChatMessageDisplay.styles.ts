@@ -50,3 +50,19 @@ export const inlineCodeStyle: CSSProperties = {
   borderRadius: "3px",
   fontFamily: "'JetBrains Mono', monospace", // Usa a fonte mono também para inline
 };
+
+export const codeWindow: CSSProperties = {
+  borderRadius: "8px",
+  overflow: "hidden",
+  marginBottom: "16px",
+  border: "1px solid #444", // Uma borda sutil para a janela
+};
+
+export const codeWindowBar: CSSProperties = {
+  backgroundColor: "#333",
+  color: "#eee",
+  padding: "8px 12px",
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+};

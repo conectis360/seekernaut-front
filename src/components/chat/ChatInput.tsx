@@ -1,28 +1,34 @@
-// ChatInput.tsx (Estilizado para se parecer com o input do Gemini)
-import React, { useState, useRef, useEffect } from "react";
-import { TextField, IconButton, InputAdornment, Box } from "@mui/material";
+import React, { useState, useRef, useEffect, useCallback } from "react";
+import { TextField, IconButton, Box } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 
 interface ChatInputProps {
-  newMessage: string;
   isTyping: boolean;
-  onSendMessage: () => void;
-  onInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onSendMessage: (message: string) => void; // Agora espera receber a mensagem
 }
 
-const ChatInput: React.FC<ChatInputProps> = ({
-  newMessage,
-  isTyping,
-  onSendMessage,
-  onInputChange,
-}) => {
+const ChatInput: React.FC<ChatInputProps> = ({ isTyping, onSendMessage }) => {
+  const [localMessage, setLocalMessage] = useState(""); // Estado local para o input
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const handleLocalInputChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setLocalMessage(event.target.value);
+  };
+
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === "Enter" && !event.shiftKey) {
-      // Enviar com Enter, mas não com Shift+Enter (para novas linhas)
+    if (event.key === "Enter" && !event.shiftKey && localMessage.trim()) {
       event.preventDefault();
-      onSendMessage();
+      onSendMessage(localMessage.trim()); // Envia o valor local para o pai
+      setLocalMessage(""); // Limpa o input localmente
+    }
+  };
+
+  const handleSendMessageClick = () => {
+    if (localMessage.trim()) {
+      onSendMessage(localMessage.trim()); // Envia o valor local para o pai
+      setLocalMessage(""); // Limpa o input localmente
     }
   };
 
@@ -31,47 +37,47 @@ const ChatInput: React.FC<ChatInputProps> = ({
       inputRef.current.style.height = "auto";
       inputRef.current.style.height = `${inputRef.current.scrollHeight}px`;
     }
-  }, [newMessage]);
+  }, [localMessage]); // Agora depende do estado local
 
   return (
     <Box
       sx={{
         padding: 2,
-        borderTop: "1px solid #383838", // Borda sutil na parte superior
-        backgroundColor: "#1b1c1d", // Manter o fundo escuro
-        position: "sticky", // Fixar na parte inferior
+        borderTop: "1px solid #383838",
+        backgroundColor: "#1b1c1d",
+        position: "sticky",
         bottom: 0,
         left: 0,
         right: 0,
-        zIndex: 10, // Garantir que fique acima das mensagens
+        zIndex: 10,
         display: "flex",
         alignItems: "center",
-        gap: 1, // Espaçamento entre o input e o botão
+        gap: 1,
       }}
     >
       <TextField
         fullWidth
         multiline
         minRows={1}
-        maxRows={4} // Limitar a expansão para não ocupar toda a tela
+        maxRows={4}
         placeholder="Digite sua mensagem..."
         variant="outlined"
-        value={newMessage}
-        onChange={onInputChange}
+        value={localMessage} // Usa o estado local
+        onChange={handleLocalInputChange} // Usa o handler local
         onKeyDown={handleKeyDown}
         inputRef={inputRef}
         sx={{
           "& .MuiOutlinedInput-root": {
-            backgroundColor: "#2e2e2e", // Fundo mais claro para o input
+            backgroundColor: "#2e2e2e",
             color: "#f5f5f5",
             "& fieldset": {
-              borderColor: "#5e5e5e", // Borda do input
+              borderColor: "#5e5e5e",
             },
             "&:hover fieldset": {
               borderColor: "#757575",
             },
             "&.Mui-focused fieldset": {
-              borderColor: "#9fa8da", // Cor de foco
+              borderColor: "#9fa8da",
             },
           },
         }}
@@ -79,8 +85,8 @@ const ChatInput: React.FC<ChatInputProps> = ({
       />
       <IconButton
         color="primary"
-        onClick={onSendMessage}
-        disabled={isTyping || !newMessage.trim()}
+        onClick={handleSendMessageClick} // Usa o handler local para enviar
+        disabled={isTyping || !localMessage.trim()}
         sx={{
           color: "#9fa8da",
           "&:disabled": {
