@@ -23,9 +23,8 @@ interface Model {
     additionalProperties: null;
   };
 }
-
 interface ModelSelectorProps {
-  onModelChange: (modelId: string) => void;
+  onModelChange: (modelInfo: { modelName: string; newChat: boolean }) => void; // Modificado
 }
 
 const ModelSelector: React.FC<ModelSelectorProps> = ({ onModelChange }) => {
@@ -71,7 +70,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onModelChange }) => {
 
   const handleModelChangeInternal = (modelName: string) => {
     setSelectedModel(modelName);
-    onModelChange(modelName); // Chama a função passada como prop com o nome do modelo
+    onModelChange({ modelName: modelName, newChat: true }); // Modificado
     handleClose();
   };
 
