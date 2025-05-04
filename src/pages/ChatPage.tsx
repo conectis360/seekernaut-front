@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Box } from "@mui/material";
 import ChatHeaderBar from "../components/header/ChatHeaderBar";
 import ConversationList from "../components/conversations/ConversationList";
@@ -26,6 +26,7 @@ const ChatPage: React.FC = () => {
     string | null
   >(initialConversationId || null);
   const navigate = useNavigate();
+  const [currentModel, setCurrentModel] = useState<string | null>(null);
 
   const handleConversationClick = (id: string) => {
     setSelectedConversationId(id);
@@ -38,6 +39,28 @@ const ChatPage: React.FC = () => {
 
   const userName = localStorage.getItem("nome"); // Supondo que você armazene o userId no localStorage
 
+  const handleModelChange = useCallback(
+    (modelInfo: { modelName: string; newChat: boolean }) => {
+      setCurrentModel(modelInfo.modelName);
+      if (modelInfo.newChat) {
+        // Lógica para criar um novo chat com o modelo selecionado
+        const newConversationId = generateNewConversationId(); // Função para gerar um novo ID
+        setSelectedConversationId(newConversationId);
+        navigate(`/chat/${newConversationId}`); // Atualiza a URL
+        // Possivelmente fazer uma chamada à API para inicializar a conversa
+        // com o novo modelo (se necessário)
+        console.log(`New chat started with model: ${modelInfo.modelName}`);
+      } else {
+        // Lógica para lidar com a mudança de modelo sem criar um novo chat
+        console.log(`Model changed to: ${modelInfo.modelName}`);
+      }
+    },
+    [navigate]
+  );
+  // Função para gerar um novo ID de conversa (substitua pela sua lógica)
+  const generateNewConversationId = () => {
+    return `chat-${Date.now()}`; // Exemplo simples
+  };
   return (
     <Root>
       <ConversationList
@@ -52,9 +75,7 @@ const ChatPage: React.FC = () => {
       />
       <MainContent>
         <ChatHeaderBar
-          onModelChange={function (modelId: string): void {
-            throw new Error("Function not implemented.");
-          }}
+          onModelChange={handleModelChange}
           userName={userName}
           userAvatarUrl={undefined}
         />

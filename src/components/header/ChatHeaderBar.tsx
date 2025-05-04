@@ -9,7 +9,7 @@ const Spacer = styled("div")(({ theme }) => ({
 }));
 
 interface ChatHeaderBarProps {
-  onModelChange: (modelId: string) => void;
+  onModelChange: (modelInfo: { modelName: string; newChat: boolean }) => void;
   userName: string | null;
   userAvatarUrl: string | null | undefined;
 }
@@ -19,17 +19,10 @@ const ChatHeaderBar: React.FC<ChatHeaderBarProps> = ({
   userName,
   userAvatarUrl,
 }) => {
-  const handleModelChange = useCallback(
-    (modelId: string) => {
-      onModelChange(modelId);
-    },
-    [onModelChange]
-  );
-
   return (
     <AppBar position="static" color="default" elevation={1}>
       <Toolbar>
-        <ModelSelector onModelChange={handleModelChange} />
+        <ModelSelector onModelChange={onModelChange} />
         <Spacer />
         <UserInfo userName={userName} userAvatarUrl={userAvatarUrl} />
       </Toolbar>
