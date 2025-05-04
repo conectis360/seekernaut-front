@@ -79,7 +79,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onModelChange }) => {
             <KeyboardArrowDownIcon />
           </>
         ) : (
-          "Select Model"
+          "Modelo: gemma3:1b"
         )}
       </IconButton>
       <Menu

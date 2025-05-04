@@ -36,6 +36,8 @@ const ChatPage: React.FC = () => {
     console.log(`Menu for conversation ${id} opened`);
   };
 
+  const userName = localStorage.getItem("nome"); // Supondo que você armazene o userId no localStorage
+
   return (
     <Root>
       <ConversationList
@@ -53,7 +55,7 @@ const ChatPage: React.FC = () => {
           onModelChange={function (modelId: string): void {
             throw new Error("Function not implemented.");
           }}
-          userName={null}
+          userName={userName}
           userAvatarUrl={undefined}
         />
         <ChatWindow />
