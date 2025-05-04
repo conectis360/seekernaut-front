@@ -1,33 +1,39 @@
 import React from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
-import HomePage from "./pages/HomePage"; // Importe o componente HomePage
-import ChatWindow from "./components/chat/ChatWindow"; // Importe o componente ChatWindow
-import Login from "./components/Login"; // Importe o componente ChatWindow
-import Dashboard from "./components/chat/Dashboard";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import HomePage from "./pages/HomePage";
+import Login from "./components/authorization/Login";
 import ChatPage from "./pages/ChatPage";
+import PrivateRoute from "./components/authorization/PrivateRoute";
 
 function App() {
+  const isAuthenticated = () => {
+    return localStorage.getItem("authToken") !== null;
+  };
+
   return (
     <Router>
       <Routes>
-        {/* Rota para a página inicial */}
         <Route path="/" element={<HomePage />} />
-        {/* Rota para a página inicial */}
         <Route path="/login" element={<Login />} />
-        <Route path="/dashboard/*" element={<Dashboard />} />{" "}
-        <Route path="/chat/*" element={<ChatPage />} />{" "}
-        {/* Rota para o Dashboard e suas sub-rotas */}
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />{" "}
-        {/* Redirecionar raiz para o dashboard */}
-        {/* Rota para a janela de chat, com um parâmetro para o ID da conversa */}
-        <Route path="/chat/:conversationId" element={<ChatPage />} />{" "}
-        {/* Também renderiza o layout para um chat específico */}
-        {/* Você pode adicionar mais rotas aqui, se necessário */}
+        <Route
+          path="/chat/*"
+          element={
+            <PrivateRoute path="/chat/*" isAuthenticated={isAuthenticated()}>
+              <ChatPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/chat/:conversationId"
+          element={
+            <PrivateRoute
+              path="/chat/:conversationId"
+              isAuthenticated={isAuthenticated()}
+            >
+              <ChatPage />
+            </PrivateRoute>
+          }
+        />
       </Routes>
     </Router>
   );

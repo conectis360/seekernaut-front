@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { TextField, Button, Container, Typography, Alert } from "@mui/material";
-import { apiFetch, ApiError } from "../utils/api"; // Importe a função utilitária
+import { apiFetch, ApiError } from "../../utils/api"; // Importe a função utilitária
 
 interface LoginResponse {
   accessToken: string;

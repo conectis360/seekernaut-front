@@ -1,7 +1,7 @@
 import React from "react";
 import { Typography, Button, Box, Container } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import Login from "../components/Login";
+import Login from "../components/authorization/Login";
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
