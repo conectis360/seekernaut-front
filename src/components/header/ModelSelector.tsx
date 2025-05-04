@@ -10,8 +10,18 @@ import { apiFetch } from "../../utils/api"; // Assumindo que você tem essa fun�
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown"; // Importe o ícone de seta
 
 interface Model {
-  id: string;
-  name: string;
+  name: string; // O ID agora é a propriedade 'name' diretamente
+  modified_at: string;
+  size: number;
+  digest: string;
+  details: {
+    format: string;
+    family: string;
+    families: string[];
+    parameter_size: string;
+    quantization_level: string;
+    additionalProperties: null;
+  };
 }
 
 interface ModelSelectorProps {
@@ -30,17 +40,21 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onModelChange }) => {
     const fetchModels = async () => {
       setLoadingModels(true);
       try {
-        const data = await apiFetch("/api/models"); // Sua rota para obter a lista de modelos
-        if (Array.isArray(data)) {
-          setModels(data);
-          setSelectedModel(data[0]?.id || null); // Seleciona o primeiro modelo por padrão
+        const response = await apiFetch("/ollama/findModels"); // Sua rota para obter a lista de modelos
+        if (response && Array.isArray(response.models)) {
+          setModels(response.models);
+          setSelectedModel(response.models[0]?.name || "gemma3:1b"); // Seleciona o primeiro modelo pelo 'name' ou um padrão
         } else {
-          console.error("Invalid models data:", data);
+          console.error("Invalid models data:", response);
+          setLoadingModels(false);
         }
       } catch (error) {
         console.error("Error fetching models:", error);
-      } finally {
         setLoadingModels(false);
+      } finally {
+        if (models.length === 0) {
+          setLoadingModels(false);
+        }
       }
     };
 
@@ -55,9 +69,9 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onModelChange }) => {
     setAnchorEl(null);
   };
 
-  const handleModelChangeInternal = (modelId: string) => {
-    setSelectedModel(modelId);
-    onModelChange(modelId); // Chama a função passada como prop
+  const handleModelChangeInternal = (modelName: string) => {
+    setSelectedModel(modelName);
+    onModelChange(modelName); // Chama a função passada como prop com o nome do modelo
     handleClose();
   };
 
@@ -73,8 +87,8 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onModelChange }) => {
         ) : selectedModel ? (
           <>
             <Typography variant="subtitle1" style={{ marginRight: 4 }}>
-              {models.find((model) => model.id === selectedModel)?.name ||
-                "Select Model"}
+              {models.find((model) => model.name === selectedModel)?.name ||
+                "Modelo: gemma3:1b"}
             </Typography>
             <KeyboardArrowDownIcon />
           </>
@@ -92,9 +106,9 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onModelChange }) => {
       >
         {models.map((model) => (
           <MenuItem
-            key={model.id}
-            onClick={() => handleModelChangeInternal(model.id)}
-            selected={model.id === selectedModel}
+            key={model.name}
+            onClick={() => handleModelChangeInternal(model.name)}
+            selected={model.name === selectedModel}
           >
             {model.name}
           </MenuItem>
