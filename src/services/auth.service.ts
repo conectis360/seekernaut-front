@@ -1,11 +1,11 @@
 import axios from "axios";
 
-const API_URL = "/api/auth/"; // Sua URL base da API de autenticação
+const API_URL = "http://localhost:9000/v1";
 
 const authService = {
-  login: (email: string, password: string) => {
+  login: (username: string, password: string) => {
     return axios
-      .post(API_URL + "login", { email, password })
+      .post(API_URL + "/auth/login", { username, password })
       .then((response) => {
         if (response.data.token) {
           localStorage.setItem("user", JSON.stringify(response.data));

@@ -4,30 +4,32 @@ import authService from "../services/auth.service";
 import { User } from "./types"; // Criaremos este arquivo de tipos
 
 interface AuthState {
-  user: User | null;
   isAuthenticated: boolean;
   loading: boolean;
   error: string | null;
+  user: null | {
+    /* your user type */
+  };
 }
 
 const initialState: AuthState = {
-  user: JSON.parse(localStorage.getItem("user") || "{}"),
-  isAuthenticated: !!localStorage.getItem("user"),
+  isAuthenticated: false,
   loading: false,
   error: null,
+  user: null,
 };
 
 interface Credentials {
-  email: string;
+  username: string;
   password: string;
 }
 
 export const login = createAsyncThunk(
   "auth/login",
-  async ({ email, password }: Credentials, thunkAPI) => {
+  async ({ username, password }: Credentials, thunkAPI) => {
     // Add type annotation
     try {
-      const data = await authService.login(email, password);
+      const data = await authService.login(username, password);
       return { user: data };
     } catch (error: any) {
       const message =

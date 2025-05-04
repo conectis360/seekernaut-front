@@ -1,49 +1,39 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { TextField, Button, Container, Typography, Alert } from "@mui/material";
-import { apiFetch, ApiError } from "../../utils/api"; // Importe a função utilitária
+import { useDispatch, useSelector } from "react-redux";
+import { login as loginAction, selectAuth } from "../../store/auth.slice";
+import { useNavigate } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { RootState } from "../../store/store"; // Export this from your store setup
 
-interface LoginResponse {
-  accessToken: string;
-  id: number;
-  username: string;
-  email: string;
-  roles: string[];
-  nome: string;
-  sobrenome: string | null;
-  tokenType: string;
-}
+// Update the component code:
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const { isAuthenticated, error: reduxError } = useAppSelector(
+    (state: RootState) => state.auth
+  );
+
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-
-    try {
-      const data: LoginResponse = await apiFetch("/auth/login", {
-        method: "POST",
-        body: JSON.stringify({ username, password }),
-        skipAuth: true, // Não precisa de token para a própria requisição de login
-      });
-
-      localStorage.setItem("accessToken", data.accessToken);
-      localStorage.setItem("userId", String(data.id));
-      localStorage.setItem("nome", data.nome);
-      localStorage.setItem("email", data.email);
-      localStorage.setItem("username", data.username);
-
-      console.log("Login successful, token:", data.accessToken);
-      window.location.href = "/chat";
-    } catch (err: any) {
-      setError(
-        err.message || "Falha ao fazer login. Verifique suas credenciais."
-      );
-      console.error("Login failed:", err);
-    }
+    dispatch(loginAction({ username, password })); // Now matches Credentials type
   };
+
+  useEffect(() => {
+    if (reduxError) {
+      setError(reduxError);
+    }
+
+    if (isAuthenticated) {
+      navigate("/chat");
+    }
+  }, [isAuthenticated, reduxError, navigate]);
 
   return (
     <Container maxWidth="sm">
@@ -51,12 +41,13 @@ const Login: React.FC = () => {
         Login
       </Typography>
       {error && <Alert severity="error">{error}</Alert>}
+      {/* Indicador de carregamento */}
       <form
         onSubmit={handleLogin}
         style={{ display: "flex", flexDirection: "column", gap: "16px" }}
       >
         <TextField
-          label="Nome de Usuário"
+          label="username"
           id="username"
           type="text"
           value={username}
