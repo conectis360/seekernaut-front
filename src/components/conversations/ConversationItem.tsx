@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import PushPinIcon from "@mui/icons-material/PushPin";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import { styled } from "@mui/material/styles";
+import { styled, Theme } from "@mui/material/styles"; // Importe Theme
 
 interface ConversationItemProps {
   id: string;
@@ -30,10 +30,11 @@ interface ListItemStyledProps extends ListItemOwnProps {
 const ConversationItemRoot = styled(ListItem, {
   shouldForwardProp: (prop) => prop !== "selected",
 })<ListItemStyledProps>(({ theme, selected }) => ({
-  backgroundColor: selected ? theme.palette.action.selected : "transparent",
+  backgroundColor: selected ? "#52565a" : "transparent",
   "&:hover": {
-    backgroundColor: theme.palette.action.hover,
+    backgroundColor: "#424649",
   },
+  borderRadius: theme.shape.borderRadius, // Opcional: Arredonda o container também
 }));
 
 const ConversationIconContainer = styled(ListItemIcon)(({ theme }) => ({
@@ -52,14 +53,14 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
 }) => {
   return (
     <ConversationItemRoot disablePadding selected={isSelected}>
-      <ListItemButton onClick={() => onClick(id)}>
-        <ConversationIconContainer>
-          {iconUrl ? (
-            <Avatar src={iconUrl} alt={title || "Conversa"} />
-          ) : (
-            <Avatar>{title ? title.charAt(0) : "?"}</Avatar>
-          )}
-        </ConversationIconContainer>
+      <ListItemButton
+        onClick={() => onClick(id)}
+        sx={(theme: Theme) => ({
+          // Use a função para acessar o theme
+          paddingY: 0.1,
+          borderRadius: theme.shape.borderRadius,
+        })}
+      >
         <ListItemText primary={title || "Sem título"} />
         {isPinned && (
           <Tooltip title="Fixado">
@@ -70,9 +71,13 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
           edge="end"
           aria-label="menu"
           onClick={(event) => {
-            event.stopPropagation(); // Prevent onClick on the ListItemButton
+            event.stopPropagation();
             onOpenMenu(id);
           }}
+          sx={(theme: Theme) => ({
+            // Use a função para acessar o theme
+            borderRadius: theme.shape.borderRadius,
+          })}
         >
           <MoreVertIcon />
         </IconButton>
