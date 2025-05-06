@@ -6,18 +6,22 @@ import ChatWindow from "../components/chat/ChatWindow";
 import { styled } from "@mui/material/styles";
 import { useNavigate, useParams } from "react-router-dom";
 
-const Root = styled(Box)(({ theme }) => ({
-  display: "flex",
-  height: "100vh", // Garante que ocupa toda a altura da tela
-  backgroundColor: theme.palette.background.default,
-  color: theme.palette.text.primary,
-}));
-
 const MainContent = styled(Box)(({ theme }) => ({
   flexGrow: 1, // Ocupa o espaço restante
   display: "flex",
   flexDirection: "column", // Organiza ChatHeader e ChatWindow verticalmente
   height: "100%", // Garante que ocupa toda a altura disponível na Root
+}));
+
+const Root = styled(Box)(({ theme }) => ({
+  display: "flex",
+  height: "100vh", // Garante que ocupa toda a altura da tela
+  backgroundColor: theme.palette.background.default,
+  color: theme.palette.text.primary,
+  "& > *:first-child": {
+    // Seleciona o primeiro filho (ConversationList)
+    flexShrink: 0,
+  },
 }));
 
 const ChatPage: React.FC = () => {
@@ -64,11 +68,6 @@ const ChatPage: React.FC = () => {
   return (
     <Root>
       <ConversationList
-        sx={{
-          width: "40%", // Largura fixa para a ConversationList
-          height: "100%",
-          overflowY: "auto", // Barra de rolagem se a lista for longa
-        }}
         onConversationClick={handleConversationClick}
         onConversationMenuOpen={handleConversationMenuOpen}
         selectedConversationId={selectedConversationId}

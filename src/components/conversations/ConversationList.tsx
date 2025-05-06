@@ -80,11 +80,11 @@ const ConversationList: React.FC<ConversationListProps> = ({
   return (
     <Box
       sx={{
-        width: 450, // Adjust width as needed
+        width: 350, // Use a largura desejada
         height: "98%",
-        backgroundColor: "#2e2e2e", // Match the background color
-        color: "#f5f5f5", // Match the text color
-        borderRight: "1px solid #383838", // Match the border
+        backgroundColor: "#2e2e2e",
+        color: "#f5f5f5",
+        borderRight: "1px solid #383838",
         padding: 2,
         display: "flex",
         flexDirection: "column",
