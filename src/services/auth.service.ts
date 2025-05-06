@@ -7,8 +7,13 @@ const authService = {
     return axios
       .post(API_URL + "/auth/login", { username, password })
       .then((response) => {
-        if (response.data.token) {
-          localStorage.setItem("user", JSON.stringify(response.data));
+        if (response.data) {
+          console.log(response.data);
+          localStorage.setItem("accessToken", response.data.accessToken);
+          localStorage.setItem("userId", response.data.id);
+          localStorage.setItem("nome", response.data.nome);
+          localStorage.setItem("email", response.data.email);
+          localStorage.setItem("username", response.data.username);
         }
 
         return response.data;

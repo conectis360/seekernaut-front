@@ -9,12 +9,11 @@ import store from "./store/store"; // Importe a sua store Redux
 
 function App() {
   const isAuthenticated = () => {
-    return localStorage.getItem("authToken") !== null;
+    return localStorage.getItem("accessToken") !== null;
   };
 
   return (
     <Provider store={store}>
-      {" "}
       <Router>
         <Routes>
           <Route path="/" element={<HomePage />} />

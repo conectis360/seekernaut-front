@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { TextField, Button, Container, Typography, Alert } from "@mui/material";
-import { useDispatch, useSelector } from "react-redux";
-import { login as loginAction, selectAuth } from "../../store/auth.slice";
+import { login as loginAction } from "../../store/auth.slice";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { RootState } from "../../store/store"; // Export this from your store setup
