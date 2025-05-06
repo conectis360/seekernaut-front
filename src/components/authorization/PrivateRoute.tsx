@@ -1,23 +1,25 @@
-import React, { ReactNode } from "react";
-import { Navigate, RouteProps, useLocation } from "react-router-dom";
+import React, { ReactNode, ReactElement } from "react";
+import { Route, Navigate, useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { selectAuth } from "../../store/auth.slice";
 
-interface PrivateRouteProps extends Omit<RouteProps, "element"> {
-  isAuthenticated: boolean;
-  children: ReactNode; // Use ReactNode em vez de React.ReactNode para consistência
+interface PrivateRouteProps {
+  children: ReactNode;
+  path: string;
 }
 
 const PrivateRoute: React.FC<PrivateRouteProps> = ({
-  isAuthenticated,
   children,
-  ...rest
-}) => {
+  path,
+}): ReactElement | null => {
+  const { isAuthenticated } = useSelector(selectAuth);
   const location = useLocation();
 
-  return isAuthenticated ? (
-    <>{children}</>
-  ) : (
-    <Navigate to="/" state={{ from: location }} replace />
-  );
+  if (!isAuthenticated) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return children as ReactElement; // Force o tipo de children para ReactElement
 };
 
 export default PrivateRoute;

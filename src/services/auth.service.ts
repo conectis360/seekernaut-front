@@ -15,13 +15,16 @@ const authService = {
           localStorage.setItem("email", response.data.email);
           localStorage.setItem("username", response.data.username);
         }
-
         return response.data;
       });
   },
 
   logout: () => {
-    localStorage.removeItem("user");
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("userId");
+    localStorage.removeItem("nome");
+    localStorage.removeItem("email");
+    localStorage.removeItem("username");
   },
 
   register: (username: string, email: string, password: string) => {
@@ -33,7 +36,7 @@ const authService = {
   },
 
   getCurrentUser: () => {
-    return JSON.parse(localStorage.getItem("user") || "{}");
+    return localStorage.getItem("userId") || null;
   },
 };
 

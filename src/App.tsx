@@ -1,17 +1,19 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom"; // Importe Navigate
 import HomePage from "./pages/HomePage";
 import Login from "./components/authorization/Login";
 import ChatPage from "./pages/ChatPage";
 import PrivateRoute from "./components/authorization/PrivateRoute";
-import { Provider } from "react-redux"; // Importe o Provider
-import store from "./store/store"; // Importe a sua store Redux
+import { Provider, useSelector } from "react-redux"; // Importe useSelector
+import store from "./store/store";
+import { selectAuth } from "./store/auth.slice"; // Importe o seletor
 
 function App() {
-  const isAuthenticated = () => {
-    return localStorage.getItem("accessToken") !== null;
-  };
-
   return (
     <Provider store={store}>
       <Router>
@@ -21,7 +23,7 @@ function App() {
           <Route
             path="/chat/*"
             element={
-              <PrivateRoute path="/chat/*" isAuthenticated={isAuthenticated()}>
+              <PrivateRoute path="/chat/*">
                 <ChatPage />
               </PrivateRoute>
             }
@@ -29,10 +31,7 @@ function App() {
           <Route
             path="/chat/:conversationId"
             element={
-              <PrivateRoute
-                path="/chat/:conversationId"
-                isAuthenticated={isAuthenticated()}
-              >
+              <PrivateRoute path="/chat/:conversationId">
                 <ChatPage />
               </PrivateRoute>
             }
