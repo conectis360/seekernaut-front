@@ -82,7 +82,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
       sx={{
         width: 350, // Use a largura desejada
         height: "98%",
-        backgroundColor: "#2e2e2e",
+        backgroundColor: "#282a2c",
         color: "#f5f5f5",
         borderRight: "1px solid #383838",
         padding: 2,
