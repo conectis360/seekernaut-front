@@ -14,10 +14,11 @@ import ConversationItem from "./ConversationItem";
 
 interface Conversation {
   conversationId: string;
-  title: string;
+  title: string | null;
   icon?: string;
   isPinned?: boolean;
-  // Add other relevant properties
+  startedAt: string;
+  userId: number;
 }
 
 interface ConversationListProps {
@@ -25,6 +26,14 @@ interface ConversationListProps {
   onConversationMenuOpen: (id: string) => void;
   selectedConversationId?: string | null;
   sx?: SxProps<Theme>; // Adicione a prop sx à interface
+}
+
+interface ApiResponse {
+  totalPages: number;
+  totalRecords: number;
+  pageNumber: number;
+  pageSize: number;
+  records: Conversation[];
 }
 
 const ConversationList: React.FC<ConversationListProps> = ({
@@ -40,13 +49,13 @@ const ConversationList: React.FC<ConversationListProps> = ({
     const fetchConversations = async () => {
       setLoading(true);
       setError(null);
-      const userId = localStorage.getItem("userId"); // Supondo que você armazene o userId no localStorage
+      const userId = localStorage.getItem("userId");
       if (userId) {
         try {
-          const data: Conversation[] = await apiFetch(
-            `/ollama/${userId}/conversations`
+          const response: ApiResponse = await apiFetch(
+            `/ollama/${userId}/conversations?pageSize=5&pageNumber=1` // Já estamos limitando no backend
           );
-          setConversations(data);
+          setConversations(response.records); // Extrai o array de conversas da propriedade 'records'
         } catch (error: any) {
           console.error("Erro ao carregar conversas do usuário:", error);
           setError("Erro ao carregar as conversas.");
@@ -64,7 +73,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
   }, []); // Executa apenas na montagem
 
   const handleLoadMore = () => {
-    // Implement logic to load more conversations
+    // Implement logic to load more conversations using pagination
     console.log("Load more conversations");
   };
 
