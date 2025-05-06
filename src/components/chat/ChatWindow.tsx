@@ -45,7 +45,7 @@ const ChatWindowContainer = styled(Box)(({ theme }) => ({
 const ChatListContainer = styled(Box)(({ theme }) => ({
   flexGrow: 1, // A lista de mensagens cresce para ocupar o espaço disponível
   overflowY: "auto", // Adiciona barra de rolagem vertical
-  backgroundColor: "#333",
+  backgroundColor: "#1b1c1d",
 }));
 
 const ChatWindow: React.FC = () => {
