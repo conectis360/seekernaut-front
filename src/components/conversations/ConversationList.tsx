@@ -77,6 +77,21 @@ const ConversationList: React.FC<ConversationListProps> = ({
     console.log("Load more conversations");
   };
 
+  const handlePinConversation = (id: string) => {
+    console.log(`Fixar conversa ${id}`);
+    // Implemente a lógica para fixar a conversa (atualizar o estado, chamar a API, etc.)
+  };
+
+  const handleEditTitleConversation = (id: string) => {
+    console.log(`Editar título da conversa ${id}`);
+    // Implemente a lógica para editar o título (abrir um modal, etc.)
+  };
+
+  const handleDeleteConversation = (id: string) => {
+    console.log(`Excluir conversa ${id}`);
+    // Implemente a lógica para excluir a conversa (atualizar o estado, chamar a API, etc.)
+  };
+
   return (
     <Box
       sx={{
@@ -121,6 +136,9 @@ const ConversationList: React.FC<ConversationListProps> = ({
               }
               onClick={onConversationClick}
               onOpenMenu={onConversationMenuOpen}
+              onPinConversation={handlePinConversation} // Passe as novas funções como props
+              onEditTitleConversation={handleEditTitleConversation}
+              onDeleteConversation={handleDeleteConversation}
             />
           ))}
         </List>

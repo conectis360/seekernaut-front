@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useRef } from "react"; // Importe useState e useRef
 import {
   ListItem,
   ListItemButton,
@@ -8,6 +8,8 @@ import {
   IconButton,
   Tooltip,
   ListItemOwnProps,
+  Menu, // Importe Menu
+  MenuItem, // Importe MenuItem
 } from "@mui/material";
 import PushPinIcon from "@mui/icons-material/PushPin";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
@@ -15,12 +17,15 @@ import { styled, Theme } from "@mui/material/styles"; // Importe Theme
 
 interface ConversationItemProps {
   id: string;
-  title: string | null | undefined; // Permitir que title seja null ou undefined
+  title: string | null | undefined;
   iconUrl?: string;
   isPinned?: boolean;
   isSelected?: boolean;
   onClick: (id: string) => void;
   onOpenMenu: (id: string) => void;
+  onPinConversation?: (id: string) => void; // Handlers para as ações do menu (opcional)
+  onEditTitleConversation?: (id: string) => void;
+  onDeleteConversation?: (id: string) => void;
 }
 
 interface ListItemStyledProps extends ListItemOwnProps {
@@ -34,7 +39,7 @@ const ConversationItemRoot = styled(ListItem, {
   "&:hover": {
     backgroundColor: "#424649",
   },
-  borderRadius: theme.shape.borderRadius, // Opcional: Arredonda o container também
+  borderRadius: theme.shape.borderRadius,
 }));
 
 const ConversationIconContainer = styled(ListItemIcon)(({ theme }) => ({
@@ -50,13 +55,49 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
   isSelected,
   onClick,
   onOpenMenu,
+  onPinConversation,
+  onEditTitleConversation,
+  onDeleteConversation,
 }) => {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null); // Estado para a âncora do menu
+  const open = Boolean(anchorEl); // Estado para controlar se o menu está aberto
+
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    event.stopPropagation(); // Impede que o onClick do ListItemButton seja acionado
+    setAnchorEl(event.currentTarget);
+    onOpenMenu(id); // Chama a função pai para indicar que o menu foi aberto (se necessário)
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handlePinClick = () => {
+    handleClose();
+    if (onPinConversation) {
+      onPinConversation(id);
+    }
+  };
+
+  const handleEditClick = () => {
+    handleClose();
+    if (onEditTitleConversation) {
+      onEditTitleConversation(id);
+    }
+  };
+
+  const handleDeleteClick = () => {
+    handleClose();
+    if (onDeleteConversation) {
+      onDeleteConversation(id);
+    }
+  };
+
   return (
     <ConversationItemRoot disablePadding selected={isSelected}>
       <ListItemButton
         onClick={() => onClick(id)}
         sx={(theme: Theme) => ({
-          // Use a função para acessar o theme
           paddingY: 0.1,
           borderRadius: theme.shape.borderRadius,
         })}
@@ -70,17 +111,30 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
         <IconButton
           edge="end"
           aria-label="menu"
-          onClick={(event) => {
-            event.stopPropagation();
-            onOpenMenu(id);
-          }}
-          sx={(theme: Theme) => ({
-            // Use a função para acessar o theme
-            borderRadius: theme.shape.borderRadius,
-          })}
+          onClick={handleClick} // Abre o menu ao clicar
+          sx={(theme: Theme) => ({ borderRadius: theme.shape.borderRadius })}
         >
           <MoreVertIcon />
         </IconButton>
+        <Menu // Componente Menu
+          anchorEl={anchorEl}
+          open={open}
+          onClose={handleClose}
+          anchorOrigin={{
+            vertical: "top",
+            horizontal: "right",
+          }}
+          transformOrigin={{
+            vertical: "top",
+            horizontal: "left",
+          }}
+        >
+          <MenuItem onClick={handlePinClick}>
+            {isPinned ? "Desfixar" : "Fixar"}
+          </MenuItem>
+          <MenuItem onClick={handleEditClick}>Editar Título</MenuItem>
+          <MenuItem onClick={handleDeleteClick}>Excluir Conversa</MenuItem>
+        </Menu>
       </ListItemButton>
     </ConversationItemRoot>
   );
