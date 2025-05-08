@@ -1,7 +1,7 @@
 import React, { ReactNode, ReactElement } from "react";
 import { Route, Navigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { selectAuth } from "../../store/auth.slice";
+import { selectAuth } from "../../store/auth/auth.slice";
 
 interface PrivateRouteProps {
   children: ReactNode;

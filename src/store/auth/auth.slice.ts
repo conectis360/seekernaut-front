@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import { RootState } from "./store";
-import authService from "../services/auth.service";
-import { User } from "./types"; // Criaremos este arquivo de tipos
+import { RootState } from "../store";
+import authService from "../../services/auth.service";
+import { User } from "../types"; // Criaremos este arquivo de tipos
 
 interface AuthState {
   isAuthenticated: boolean;

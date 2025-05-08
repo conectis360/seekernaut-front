@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
 import { Box, Grid, Typography, CircularProgress, Alert } from "@mui/material";
 import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "../store";
-import { fetchUserProfile } from "../store/user/userActions";
+import { RootState } from "../../store/store";
+import { fetchUserProfile } from "../../store/user/userActions";
 import UserProfileCard from "./UserProfileCard";
 import UserRolesList from "./UserRolesList";
 import QuickActions from "./QuickActions";
@@ -66,15 +66,21 @@ const UserDashboardPage: React.FC = () => {
       <Grid container spacing={3}>
         {user && (
           <>
-            <Grid item xs={12} md={6}>
+            <Grid>
+              {" "}
+              {/* Adicionei a prop 'item' */}
               <UserProfileCard user={user} />
             </Grid>
-            <Grid item xs={12} md={6}>
-              <UserRolesList roles={user.tipoUsuario} />{" "}
+            <Grid>
+              {" "}
+              {/* Adicionei a prop 'item' */}
+              <UserRolesList roles={user.tipoUsuario} />
               {/* Assumindo que 'tipoUsuario' são as roles */}
             </Grid>
-            <Grid item xs={12}>
-              <QuickActions userRoles={user.tipoUsuario} />{" "}
+            <Grid>
+              {" "}
+              {/* Adicionei a prop 'item' */}
+              <QuickActions userRoles={user.tipoUsuario} />
               {/* Passando as roles para ações condicionais */}
             </Grid>
             {/* Outras seções do dashboard */}
