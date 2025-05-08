@@ -1,14 +1,14 @@
 import React, { useEffect } from "react";
 import { Box, Grid, Typography, CircularProgress, Alert } from "@mui/material";
 import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "../../store/store";
+import { AppDispatch, RootState } from "../../store/store";
 import { fetchUserProfile } from "../../store/user/userActions";
 import UserProfileCard from "./UserProfileCard";
 import UserRolesList from "./UserRolesList";
 import QuickActions from "./QuickActions";
 
 const UserDashboardPage: React.FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const { user, loading, error } = useSelector(
     (state: RootState) => state.user
   );

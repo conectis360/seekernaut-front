@@ -1,8 +1,9 @@
 import React, { useCallback } from "react";
-import { AppBar, Toolbar } from "@mui/material";
+import { AppBar, Toolbar, Button, Box } from "@mui/material"; // Importe Box
 import { styled } from "@mui/material/styles";
 import ModelSelector from "./ModelSelector";
 import UserInfo from "./UserInfo";
+import { Link } from "react-router-dom";
 
 const Spacer = styled("div")(({ theme }) => ({
   flexGrow: 1,
@@ -24,7 +25,19 @@ const ChatHeaderBar: React.FC<ChatHeaderBarProps> = ({
       <Toolbar>
         <ModelSelector onModelChange={onModelChange} />
         <Spacer />
-        <UserInfo userName={userName} userAvatarUrl={userAvatarUrl} />
+        <Box
+          component={Link}
+          to="/user-dashboard"
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            textDecoration: "none",
+            color: "inherit",
+            "&:hover": { opacity: 0.8 },
+          }}
+        >
+          <UserInfo userName={userName} userAvatarUrl={userAvatarUrl} />
+        </Box>
       </Toolbar>
     </AppBar>
   );

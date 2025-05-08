@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom"; // Im
 import HomePage from "./pages/HomePage";
 import Login from "./components/authorization/Login";
 import ChatPage from "./pages/ChatPage";
+import UserDashboardPage from "./components/userDarshboard/UserDashboardPage";
 import PrivateRoute from "./components/authorization/PrivateRoute";
 import { Provider } from "react-redux"; // Importe useSelector
 import store from "./store/store";
@@ -14,6 +15,7 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/user-dashboard" element={<UserDashboardPage />} />
           <Route
             path="/chat/*"
             element={
