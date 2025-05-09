@@ -77,6 +77,10 @@ const ChatPage: React.FC = () => {
           onModelChange={handleModelChange}
           userName={userName}
           userAvatarUrl={undefined}
+          userEmail={null}
+          onLogOff={function (): void {
+            throw new Error("Function not implemented.");
+          }}
         />
         <ChatWindow />
       </MainContent>
