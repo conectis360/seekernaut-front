@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom"; // Im
 import HomePage from "./pages/HomePage";
 import Login from "./components/authorization/Login";
 import ChatPage from "./pages/ChatPage";
-import UserDashboardPage from "./components/userDarshboard/UserDashboardPage";
+import UserDashboardPage from "./pages/UserDashboardPage";
 import PrivateRoute from "./components/authorization/PrivateRoute";
 import { Provider } from "react-redux"; // Importe useSelector
 import store from "./store/store";
