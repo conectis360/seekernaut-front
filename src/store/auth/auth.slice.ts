@@ -7,9 +7,8 @@ interface AuthState {
   isAuthenticated: boolean;
   loading: boolean;
   error: string | null;
-  user: null | {
-    /* your user type */
-  };
+  user: User | null; // Alterei para User
+  token: string | null; // Adicionei o token ao estado
 }
 
 const initialState: AuthState = {
@@ -17,6 +16,7 @@ const initialState: AuthState = {
   loading: false,
   error: null,
   user: null,
+  token: null, // Inicializei o token
 };
 
 interface Credentials {
@@ -30,7 +30,7 @@ export const login = createAsyncThunk(
     // Add type annotation
     try {
       const data = await authService.login(username, password);
-      return { user: data };
+      return { user: data, token: data.token }; // Retorne o token
     } catch (error: any) {
       const message =
         error.response?.data?.message || // Optional chaining syntax
@@ -41,7 +41,8 @@ export const login = createAsyncThunk(
   }
 );
 
-export const logout = createAsyncThunk("auth/logout", () => {
+export const logoutAsync = createAsyncThunk("auth/logout", () => {
+  // Renomeei para evitar conflito
   authService.logout();
 });
 
@@ -49,7 +50,22 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    // Não precisamos de reducers para login/logout, pois createAsyncThunk gera automaticamente
+    // Adicionei os reducers loginSuccess e logout
+    loginSuccess: (
+      state,
+      action: PayloadAction<{ token: string; user: User }>
+    ) => {
+      state.isAuthenticated = true;
+      state.loading = false;
+      state.error = null;
+      state.user = action.payload.user;
+      state.token = action.payload.token; // Armazene o token
+    },
+    logout: (state) => {
+      state.isAuthenticated = false;
+      state.user = null;
+      state.token = null; // Limpe o token
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -58,10 +74,12 @@ const authSlice = createSlice({
       })
       .addCase(
         login.fulfilled,
-        (state, action: PayloadAction<{ user: User }>) => {
+        (state, action: PayloadAction<{ user: User; token: string }>) => {
+          // Atualizei o tipo da action
           state.loading = false;
           state.isAuthenticated = true;
           state.user = action.payload.user;
+          state.token = action.payload.token; // Armazene o token
         }
       )
       .addCase(login.rejected, (state, action: PayloadAction<any>) => {
@@ -69,14 +87,18 @@ const authSlice = createSlice({
         state.isAuthenticated = false;
         state.user = null;
         state.error = action.payload;
+        state.token = null;
       })
-      .addCase(logout.fulfilled, (state) => {
+      .addCase(logoutAsync.fulfilled, (state) => {
+        // Usei o nome renomeado
         state.isAuthenticated = false;
         state.user = null;
+        state.token = null;
       });
   },
 });
 
+export const { loginSuccess, logout } = authSlice.actions; // Exporte as actions diretamente do slice
 export const selectAuth = (state: RootState) => state.auth;
 
 export default authSlice.reducer;
