@@ -53,6 +53,7 @@ const ChatWindow: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const chatAreaRef = useRef<HTMLDivElement>(null);
+  const [attachments, setAttachments] = useState<FileList | null>(null); // Estado para os arquivos anexados
 
   useEffect(() => {
     const loadHistory = async () => {
@@ -101,17 +102,23 @@ const ChatWindow: React.FC = () => {
         setMessages((prevMessages) => [...prevMessages, userMessage]);
         setIsTyping(true);
 
+        const formData = new FormData();
+        formData.append(
+          "messages",
+          JSON.stringify([{ role: "user", content: messageToSend }])
+        );
+        if (attachments) {
+          for (let i = 0; i < attachments.length; i++) {
+            formData.append("files", attachments[i]); // 'files' será a chave para o backend
+          }
+        }
+
         try {
           const response = await fetch(
             `/conversations/${conversationId}/chat`,
             {
               method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                messages: [{ role: "user", content: messageToSend }],
-              }),
+              body: formData,
             }
           );
 
@@ -159,6 +166,7 @@ const ChatWindow: React.FC = () => {
               }
             }
             setIsTyping(false);
+            setAttachments(null); // Limpar os anexos após o envio
           } else if (response.ok) {
             const data = await response.json();
             const botMessage: ChatMessage = {
@@ -167,6 +175,7 @@ const ChatWindow: React.FC = () => {
             };
             setMessages((prevMessages) => [...prevMessages, botMessage]);
             setIsTyping(false);
+            setAttachments(null); // Limpar os anexos após o envio
           } else {
             console.error("Erro ao enviar mensagem:", response.status);
             setIsTyping(false);
@@ -177,7 +186,18 @@ const ChatWindow: React.FC = () => {
         }
       }
     },
-    [conversationId, setMessages, setIsTyping]
+    [conversationId, setMessages, setIsTyping, attachments]
+  );
+
+  const handleAddAttachment = useCallback(
+    (files: FileList | null) => {
+      setAttachments(files);
+      if (files && files.length > 0) {
+        console.log("Arquivos selecionados no pai:", files);
+        // Aqui você pode adicionar feedback visual ao usuário sobre os arquivos selecionados
+      }
+    },
+    [setAttachments]
   );
 
   return (
@@ -189,7 +209,11 @@ const ChatWindow: React.FC = () => {
           chatAreaRef={chatAreaRef}
         />
       </ChatListContainer>
-      <ChatInput isTyping={isTyping} onSendMessage={handleSendMessage} />
+      <ChatInput
+        isTyping={isTyping}
+        onSendMessage={handleSendMessage}
+        onAddAttachment={handleAddAttachment}
+      />
     </ChatWindowContainer>
   );
 };

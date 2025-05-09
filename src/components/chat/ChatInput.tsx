@@ -1,15 +1,22 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import { TextField, IconButton, Box } from "@mui/material";
+import { TextField, IconButton, Box, Button } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
+import AttachFileIcon from "@mui/icons-material/AttachFile";
 
 interface ChatInputProps {
   isTyping: boolean;
-  onSendMessage: (message: string) => void; // Agora espera receber a mensagem
+  onSendMessage: (message: string) => void;
+  onAddAttachment?: (files: FileList | null) => void; // Prop opcional para lidar com anexos
 }
 
-const ChatInput: React.FC<ChatInputProps> = ({ isTyping, onSendMessage }) => {
-  const [localMessage, setLocalMessage] = useState(""); // Estado local para o input
+const ChatInput: React.FC<ChatInputProps> = ({
+  isTyping,
+  onSendMessage,
+  onAddAttachment,
+}) => {
+  const [localMessage, setLocalMessage] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null); // Ref para o input de arquivo (oculto)
 
   const handleLocalInputChange = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -18,17 +25,34 @@ const ChatInput: React.FC<ChatInputProps> = ({ isTyping, onSendMessage }) => {
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    // Manter o comportamento de nova linha com Shift+Enter
     if (event.key === "Enter" && !event.shiftKey && localMessage.trim()) {
       event.preventDefault();
-      onSendMessage(localMessage.trim()); // Envia o valor local para o pai
-      setLocalMessage(""); // Limpa o input localmente
+      onSendMessage(localMessage.trim());
+      setLocalMessage("");
     }
   };
 
   const handleSendMessageClick = () => {
     if (localMessage.trim()) {
-      onSendMessage(localMessage.trim()); // Envia o valor local para o pai
-      setLocalMessage(""); // Limpa o input localmente
+      onSendMessage(localMessage.trim());
+      setLocalMessage("");
+    }
+  };
+
+  const handleAddAttachmentClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click(); // Simula o clique no input de arquivo oculto
+    }
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (onAddAttachment) {
+      onAddAttachment(event.target.files);
+      // Limpar o valor do input para permitir o envio do mesmo arquivo novamente
+      if (event.target.value) {
+        event.target.value = "";
+      }
     }
   };
 
@@ -37,13 +61,12 @@ const ChatInput: React.FC<ChatInputProps> = ({ isTyping, onSendMessage }) => {
       inputRef.current.style.height = "auto";
       inputRef.current.style.height = `${inputRef.current.scrollHeight}px`;
     }
-  }, [localMessage]); // Agora depende do estado local
+  }, [localMessage]);
 
   return (
     <Box
       sx={{
         padding: 2,
-        borderTop: "1px solid #383838",
         backgroundColor: "#1b1c1d",
         position: "sticky",
         bottom: 0,
@@ -55,6 +78,16 @@ const ChatInput: React.FC<ChatInputProps> = ({ isTyping, onSendMessage }) => {
         gap: 1,
       }}
     >
+      {onAddAttachment && (
+        <IconButton
+          color="default"
+          onClick={handleAddAttachmentClick}
+          sx={{ color: "#f5f5f5" }}
+          aria-label="adicionar anexo"
+        >
+          <AttachFileIcon />
+        </IconButton>
+      )}
       <TextField
         fullWidth
         multiline
@@ -62,8 +95,8 @@ const ChatInput: React.FC<ChatInputProps> = ({ isTyping, onSendMessage }) => {
         maxRows={4}
         placeholder="Digite sua mensagem..."
         variant="outlined"
-        value={localMessage} // Usa o estado local
-        onChange={handleLocalInputChange} // Usa o handler local
+        value={localMessage}
+        onChange={handleLocalInputChange}
         onKeyDown={handleKeyDown}
         inputRef={inputRef}
         sx={{
@@ -85,7 +118,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ isTyping, onSendMessage }) => {
       />
       <IconButton
         color="primary"
-        onClick={handleSendMessageClick} // Usa o handler local para enviar
+        onClick={handleSendMessageClick}
         disabled={isTyping || !localMessage.trim()}
         sx={{
           color: "#9fa8da",
@@ -96,6 +129,14 @@ const ChatInput: React.FC<ChatInputProps> = ({ isTyping, onSendMessage }) => {
       >
         <SendIcon />
       </IconButton>
+      {/* Input de arquivo oculto */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        style={{ display: "none" }}
+        onChange={handleFileChange}
+        multiple // Permite selecionar múltiplos arquivos
+      />
     </Box>
   );
 };
