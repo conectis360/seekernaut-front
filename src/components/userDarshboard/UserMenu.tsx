@@ -8,6 +8,7 @@ import {
   IconButton,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import LogoutButton from "../authorization/LogoutButton";
 
 interface UserMenuProps {
   userName: string | null;
@@ -37,11 +38,6 @@ const UserMenu: React.FC<UserMenuProps> = ({
   const handleGoToDashboard = () => {
     handleClose();
     navigate("/user-dashboard"); // Certifique-se de que esta rota esteja configurada
-  };
-
-  const handleLogOff = () => {
-    handleClose();
-    onLogOff(); // Chama a função de log off passada como prop
   };
 
   return (
@@ -104,8 +100,8 @@ const UserMenu: React.FC<UserMenuProps> = ({
         <MenuItem onClick={handleGoToDashboard}>
           <Typography>Dashboard</Typography>
         </MenuItem>
-        <MenuItem onClick={handleLogOff}>
-          <Typography>Log Off</Typography>
+        <MenuItem>
+          <LogoutButton />
         </MenuItem>
       </Menu>
     </Box>

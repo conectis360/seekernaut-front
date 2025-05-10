@@ -18,7 +18,7 @@ const Root = styled(Box)(({ theme }) => ({
   height: "100vh", // Garante que ocupa toda a altura da tela
   backgroundColor: theme.palette.background.default,
   color: theme.palette.text.primary,
-  "& > *:first-child": {
+  "& > *:first-of-type": {
     // Seleciona o primeiro filho (ConversationList)
     flexShrink: 0,
   },
