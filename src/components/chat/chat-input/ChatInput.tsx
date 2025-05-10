@@ -107,6 +107,14 @@ const ChatInput: React.FC<ChatInputProps> = ({
         anchorEl={anchorEl}
         open={isMenuOpen}
         onClose={handleCloseMenu}
+        anchorOrigin={{
+          vertical: "top",
+          horizontal: "left",
+        }}
+        transformOrigin={{
+          vertical: "bottom",
+          horizontal: "left",
+        }}
         PaperProps={{
           style: {
             backgroundColor: "#2e2e2e",
