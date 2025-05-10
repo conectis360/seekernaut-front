@@ -1,22 +1,34 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
-import { TextField, IconButton, Box, Button } from "@mui/material";
+import React, { useState, useRef, useEffect } from "react";
+import {
+  TextField,
+  IconButton,
+  Box,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
+} from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
 import SendIcon from "@mui/icons-material/Send";
-import AttachFileIcon from "@mui/icons-material/AttachFile";
+import AttachmentIcon from "@mui/icons-material/Attachment"; // Ícone padrão para anexos no menu
+import AttachmentButton from "./AttachmentButton"; // Importe o componente abstrato
 
 interface ChatInputProps {
   isTyping: boolean;
   onSendMessage: (message: string) => void;
-  onAddAttachment?: (files: FileList | null) => void; // Prop opcional para lidar com anexos
+  onAddAttachment?: (files: FileList | null) => void;
+  // onAddFromCloud?: () => void;
 }
 
 const ChatInput: React.FC<ChatInputProps> = ({
   isTyping,
   onSendMessage,
-  onAddAttachment,
+  onAddAttachment /* , onAddFromCloud */,
 }) => {
   const [localMessage, setLocalMessage] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null); // Ref para o input de arquivo (oculto)
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const isMenuOpen = Boolean(anchorEl);
 
   const handleLocalInputChange = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -25,7 +37,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    // Manter o comportamento de nova linha com Shift+Enter
     if (event.key === "Enter" && !event.shiftKey && localMessage.trim()) {
       event.preventDefault();
       onSendMessage(localMessage.trim());
@@ -40,21 +51,27 @@ const ChatInput: React.FC<ChatInputProps> = ({
     }
   };
 
-  const handleAddAttachmentClick = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click(); // Simula o clique no input de arquivo oculto
-    }
+  const handleOpenMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
   };
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (onAddAttachment) {
-      onAddAttachment(event.target.files);
-      // Limpar o valor do input para permitir o envio do mesmo arquivo novamente
-      if (event.target.value) {
-        event.target.value = "";
-      }
-    }
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
   };
+
+  const handleAttachLocal = (files: FileList | null) => {
+    if (onAddAttachment) {
+      onAddAttachment(files);
+    }
+    handleCloseMenu();
+  };
+
+  // const handleAttachCloud = () => {
+  //     if (onAddFromCloud) {
+  //         onAddFromCloud();
+  //     }
+  //     handleCloseMenu();
+  // };
 
   useEffect(() => {
     if (inputRef.current) {
@@ -78,16 +95,36 @@ const ChatInput: React.FC<ChatInputProps> = ({
         gap: 1,
       }}
     >
-      {onAddAttachment && (
-        <IconButton
-          color="default"
-          onClick={handleAddAttachmentClick}
-          sx={{ color: "#f5f5f5" }}
-          aria-label="adicionar anexo"
-        >
-          <AttachFileIcon />
-        </IconButton>
-      )}
+      <IconButton
+        color="default"
+        onClick={handleOpenMenu}
+        sx={{ color: "#f5f5f5" }}
+        aria-label="adicionar opções"
+      >
+        <AddIcon />
+      </IconButton>
+      <Menu
+        anchorEl={anchorEl}
+        open={isMenuOpen}
+        onClose={handleCloseMenu}
+        PaperProps={{
+          style: {
+            backgroundColor: "#2e2e2e",
+            color: "#f5f5f5",
+            maxWidth: 200,
+          },
+        }}
+      >
+        {onAddAttachment && (
+          <MenuItem disableRipple>
+            {" "}
+            <AttachmentButton
+              onChange={handleAttachLocal}
+              ariaLabel="Inserir Arquivos"
+            />
+          </MenuItem>
+        )}
+      </Menu>
       <TextField
         fullWidth
         multiline
@@ -129,14 +166,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
       >
         <SendIcon />
       </IconButton>
-      {/* Input de arquivo oculto */}
-      <input
-        type="file"
-        ref={fileInputRef}
-        style={{ display: "none" }}
-        onChange={handleFileChange}
-        multiple // Permite selecionar múltiplos arquivos
-      />
     </Box>
   );
 };

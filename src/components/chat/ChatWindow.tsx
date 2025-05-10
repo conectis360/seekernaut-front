@@ -5,7 +5,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { apiFetch } from "../../utils/api";
 import ChatList from "./ChatList";
-import ChatInput from "./ChatInput";
+import ChatInput from "./chat-input/ChatInput";
 
 interface BackendMessage {
   messageId: number;
