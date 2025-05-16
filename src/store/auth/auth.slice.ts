@@ -36,7 +36,7 @@ export const login = createAsyncThunk(
         user: data,
         accessToken: data.accessToken,
         refreshToken: data.refreshToken,
-      }; // Assumindo que a API retorna accessToken e refreshToken
+      };
     } catch (error: any) {
       const message =
         error.response?.data?.message || error.message || error.toString();
