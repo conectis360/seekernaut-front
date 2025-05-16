@@ -11,6 +11,7 @@ class AuthService {
       .then((response) => {
         if (response.data) {
           localStorage.setItem("accessToken", response.data.accessToken);
+          localStorage.setItem("refreshToken", response.data.refreshToken);
           localStorage.setItem("userId", response.data.id);
           localStorage.setItem("nome", response.data.nome);
           localStorage.setItem("email", response.data.email);
